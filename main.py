@@ -51,11 +51,29 @@ for url in urls:
 
             cells = row.find_elements(By.XPATH, './/td')
 
+            exclude_keywords = ["90", "pct", "gca",
+                                "per", "x", "sca", "plus", "matches", "games_complete", "average_shot_distance"]
+
             for cell in cells:
                 attribute_name = cell.get_attribute("data-stat")
                 attribute_value = cell.text
 
-                players[full_player_name][attribute_name] = attribute_value
+                if not any(keyword in attribute_name for keyword in exclude_keywords) and not attribute_value == "":
+                    if "nationality" in attribute_name:
+                        parts = attribute_value.split()
+                        if parts:
+                            attribute_value = parts[-1]
+                    elif "age" in attribute_name:
+                        parts = attribute_value.split('-')
+                        if parts:
+                            attribute_value = parts[0]
+
+                    try:
+                        attribute_value = float(attribute_value)
+                    except ValueError:
+                        pass
+
+                    players[full_player_name][attribute_name] = attribute_value
 
     driver.quit()
 
