@@ -32,12 +32,19 @@ players = {}
 
 # Mapping of attribute names to sub-dictionaries
 attribute_mapping = {
+    # attacking stats
     'attacking_actions': ['goals', 'assists', 'progressive_carries', 'shots_on_target', 'assisted_shots', 'through_balls', 'take_ons', 'take_ons_won', 'take_ons_tackled', 'on_goals_for', 'shots'],
+    # defensive stats
     'defensive_actions': ['tackles', 'tackles_won', 'tackles_def_3rd', 'tackles_mid_3rd', 'tackles_att_3rd', 'challenge_tackles', 'challenges', 'challenges_lost', 'blocks', 'blocked_shots', 'blocked_passes', 'interceptions', 'clearances', 'on_goals_against', 'ball_recoveries', 'aerials_won', 'aerials_lost'],
+    # set piece stats
     'set_pieces': ['pens_made', 'pens_att', 'pens_won', 'pens_conceded', 'shots_free_kicks', 'passes_free_kicks', 'throw_ins', 'corner_kicks', 'corner_kicks_in', 'corner_kicks_out', 'corner_kicks_straight', 'fouled'],
+    # mistake stats
     'mistakes': ['cards_yellow', 'cards_red', 'errors', 'miscontrols', 'dispossessed', 'offsides', 'fouls', 'own_goals'],
+    # passing stats
     'passing': ['passes', 'progressive_passes', 'progressive_passes_received', 'passes_completed', 'passes_total_distance', 'passes_progressive_distance', 'passes_completed_short', 'passes_short', 'passes_completed_medium', 'passes_medium', 'passes_completed_long', 'passes_long', 'passes_into_final_third', 'passes_into_penalty_area', 'crosses_into_penalty_area', 'passes_live', 'passes_dead', 'passes_switches', 'crosses', 'passes_offside', 'passes_blocked', 'passes_received', 'passes_offsides'],
+    # possession stats
     'possession': ['touches', 'touches_def_pen_area', 'touches_def_3rd', 'touches_mid_3rd', 'touches_att_3rd', 'touches_att_pen_area', 'touches_live_ball', 'carries', 'carries_distance', 'carries_progressive_distance', 'carries_into_final_third', 'carries_into_penalty_area'],
+    # goalkeeping stats
     'goalkeeping': ['gk_shots_on_target_against', 'gk_saves', 'gk_clean_sheets', 'gk_pens_att', 'gk_pens_allowed', 'gk_pens_saved', 'gk_pens_missed', 'gk_free_kick_goals_against', 'gk_corner_kick_goals_against', 'gk_own_goals_against', 'gk_passes_completed_launched', 'gk_passes_launched', 'gk_passes', 'gk_passes_throws', 'gk_passes_length_avg', 'gk_goal_kicks', 'gk_goal_kicks_length_avg', 'gk_crosses', 'gk_crosses_stopped', 'gk_def_actions_outside_pen_area', 'gk_goal_kick_length_avg']
 }
 
