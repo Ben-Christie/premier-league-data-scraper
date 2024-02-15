@@ -1,56 +1,25 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from data import urls, nations, positions
+import csv
+import os
 
 # Create a single webdriver instance
 driver = webdriver.Chrome()
 
-# URL of the webpage
-urls = [
-    "https://fbref.com/en/squads/18bb7c10/Arsenal-Stats",
-    # "https://fbref.com/en/squads/8602292d/Aston-Villa-Stats",
-    # "https://fbref.com/en/squads/4ba7cbea/Bournemouth-Stats",
-    # "https://fbref.com/en/squads/cd051869/Brentford-Stats",
-    # "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats",
-    # "https://fbref.com/en/squads/943e8050/Burnley-Stats",
-    # "https://fbref.com/en/squads/cff3d9bb/Chelsea-Stats",
-    # "https://fbref.com/en/squads/47c64c55/Crystal-Palace-Stats",
-    # "https://fbref.com/en/squads/d3fd31cc/Everton-Stats",
-    # "https://fbref.com/en/squads/fd962109/Fulham-Stats",
-    # "https://fbref.com/en/squads/822bd0ba/Liverpool-Stats",
-    # "https://fbref.com/en/squads/e297cd13/Luton-Town-Stats",
-    # "https://fbref.com/en/squads/b8fd03ef/Manchester-City-Stats",
-    # "https://fbref.com/en/squads/19538871/Manchester-United-Stats",
-    # "https://fbref.com/en/squads/b2b47a98/Newcastle-United-Stats",
-    # "https://fbref.com/en/squads/e4a775cb/Nottingham-Forest-Stats",
-    # "https://fbref.com/en/squads/1df6b87e/Sheffield-United-Stats",
-    # "https://fbref.com/en/squads/361ca564/Tottenham-Hotspur-Stats",
-    # "https://fbref.com/en/squads/7c21e445/West-Ham-United-Stats",
-    # "https://fbref.com/en/squads/8cec06e1/Wolverhampton-Wanderers-Stats"
-]
-
 players = {}
-
-# Mapping of attribute names to sub-dictionaries
-attribute_mapping = {
-    # attacking stats
-    'attacking_actions': ['goals', 'assists', 'progressive_carries', 'shots_on_target', 'assisted_shots', 'through_balls', 'take_ons', 'take_ons_won', 'take_ons_tackled', 'on_goals_for', 'shots'],
-    # defensive stats
-    'defensive_actions': ['tackles', 'tackles_won', 'tackles_def_3rd', 'tackles_mid_3rd', 'tackles_att_3rd', 'challenge_tackles', 'challenges', 'challenges_lost', 'blocks', 'blocked_shots', 'blocked_passes', 'interceptions', 'clearances', 'on_goals_against', 'ball_recoveries', 'aerials_won', 'aerials_lost'],
-    # set piece stats
-    'set_pieces': ['pens_made', 'pens_att', 'pens_won', 'pens_conceded', 'shots_free_kicks', 'passes_free_kicks', 'throw_ins', 'corner_kicks', 'corner_kicks_in', 'corner_kicks_out', 'corner_kicks_straight', 'fouled'],
-    # mistake stats
-    'mistakes': ['cards_yellow', 'cards_red', 'errors', 'miscontrols', 'dispossessed', 'offsides', 'fouls', 'own_goals'],
-    # passing stats
-    'passing': ['passes', 'progressive_passes', 'progressive_passes_received', 'passes_completed', 'passes_total_distance', 'passes_progressive_distance', 'passes_completed_short', 'passes_short', 'passes_completed_medium', 'passes_medium', 'passes_completed_long', 'passes_long', 'passes_into_final_third', 'passes_into_penalty_area', 'crosses_into_penalty_area', 'passes_live', 'passes_dead', 'passes_switches', 'crosses', 'passes_offside', 'passes_blocked', 'passes_received', 'passes_offsides'],
-    # possession stats
-    'possession': ['touches', 'touches_def_pen_area', 'touches_def_3rd', 'touches_mid_3rd', 'touches_att_3rd', 'touches_att_pen_area', 'touches_live_ball', 'carries', 'carries_distance', 'carries_progressive_distance', 'carries_into_final_third', 'carries_into_penalty_area'],
-    # goalkeeping stats
-    'goalkeeping': ['gk_shots_on_target_against', 'gk_saves', 'gk_clean_sheets', 'gk_pens_att', 'gk_pens_allowed', 'gk_pens_saved', 'gk_pens_missed', 'gk_free_kick_goals_against', 'gk_corner_kick_goals_against', 'gk_own_goals_against', 'gk_passes_completed_launched', 'gk_passes_launched', 'gk_passes', 'gk_passes_throws', 'gk_passes_length_avg', 'gk_goal_kicks', 'gk_goal_kicks_length_avg', 'gk_crosses', 'gk_crosses_stopped', 'gk_def_actions_outside_pen_area', 'gk_goal_kick_length_avg']
-}
 
 for url in urls:
     driver.get(url)
     driver.implicitly_wait(10)
+
+    title_element = driver.find_element(By.XPATH, './/h1/span')
+    title = title_element.text.strip().split()
+
+    club = title[1]
+
+    if len(title) > 3:
+        club += " " + title[2]
 
     team_data = driver.find_elements(By.TAG_NAME, 'table')
 
@@ -70,6 +39,8 @@ for url in urls:
 
                 player = players[full_player_name]
 
+                player['club'] = club
+
                 cells = row.find_elements(By.XPATH, './/td')
 
                 exclude_keywords = ["90", "pct", "gca", "per", "x", "sca",
@@ -85,16 +56,21 @@ for url in urls:
 
                     # Custom processing for certain attributes (e.g., nationality, age)
                     if "nationality" in attribute_name:
+                        attribute_name = 'nation'
                         parts = attribute_value.split()
                         if parts:
-                            attribute_value = parts[-1]
+                            attribute_value = nations[parts[-1]]
                     elif "age" in attribute_name:
                         parts = attribute_value.split('-')
                         if parts:
                             attribute_value = parts[0]
+                    elif "position" in attribute_name:
+                        parts = attribute_value.split(',')
+                        if parts:
+                            attribute_value = positions[parts[0]]
 
                     try:
-                        attribute_value = float(attribute_value)
+                        attribute_value = int(attribute_value)
                     except ValueError:
                         pass
 
@@ -103,21 +79,49 @@ for url in urls:
                         players.pop(full_player_name)
                         break
 
-                    # Check if the attribute belongs to any sub-dictionary
-                    for sub_dict, attributes in attribute_mapping.items():
-                        if attribute_name in attributes:
-                            player.setdefault(sub_dict, {})[
-                                attribute_name] = attribute_value
-                            break
-                    else:
-                        # If not found in any sub-dictionary, add it directly to the player dictionary
-                        player[attribute_name] = attribute_value
+                    player[attribute_name] = attribute_value
 
 # Close the webdriver instance
 driver.quit()
 
-# Now you have a list of player dictionaries, which you can process or store as needed
-for player_name, player_data in players.items():
-    print(player_name)
-    print(player_data)
-    print('\n')
+# split into csv based on player position
+positions_csv = {
+    'Goalkeeper': 'goalkeeper.csv',
+    'Defender': 'defender.csv',
+    'Midfielder': 'midfielder.csv',
+    'Forward': 'forward.csv'
+}
+
+# initialise dicts to store players by position
+players_by_position = {
+    position: [] for position in positions_csv.keys()
+}
+
+# categorise players by position
+for _, player_data in players.items():
+    position = player_data['position']
+    players_by_position[position].append(player_data)
+
+# Get the path to the Downloads directory
+downloads_directory = os.path.join(os.path.expanduser('~'), 'Downloads')
+
+# Create a new folder for the CSV files
+output_directory = os.path.join(downloads_directory, 'pl_player_data')
+
+# Ensure the directory exists; if not, create it
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
+
+# write players by position to csv
+for position, players_list in players_by_position.items():
+    csv_filename = positions_csv[position]
+
+    csv_path = os.path.join(output_directory, 'pl_' + csv_filename)
+
+    with open(csv_path, 'w', newline='') as csvfile:
+        fieldnames = players_list[0].keys() if players_list else []
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for player in players_list:
+            writer.writerow(player)
