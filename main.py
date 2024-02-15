@@ -62,7 +62,7 @@ for url in urls:
                 th_element = row.find_element(By.TAG_NAME, 'th')
                 full_player_name = th_element.text.strip()
 
-                if not full_player_name or any(char.isdigit() for char in full_player_name):
+                if not full_player_name or any(char.isdigit() for char in full_player_name) or full_player_name in ['Player', 'Date']:
                     continue
 
                 if full_player_name not in players:
@@ -97,6 +97,11 @@ for url in urls:
                         attribute_value = float(attribute_value)
                     except ValueError:
                         pass
+
+                    # remove players if they haven't played a game
+                    if attribute_name == 'games' and attribute_value < 1:
+                        players.pop(full_player_name)
+                        break
 
                     # Check if the attribute belongs to any sub-dictionary
                     for sub_dict, attributes in attribute_mapping.items():
