@@ -7,25 +7,25 @@ driver = webdriver.Chrome()
 # URL of the webpage
 urls = [
     "https://fbref.com/en/squads/18bb7c10/Arsenal-Stats",
-    "https://fbref.com/en/squads/8602292d/Aston-Villa-Stats",
-    "https://fbref.com/en/squads/4ba7cbea/Bournemouth-Stats",
-    "https://fbref.com/en/squads/cd051869/Brentford-Stats",
-    "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats",
-    "https://fbref.com/en/squads/943e8050/Burnley-Stats",
-    "https://fbref.com/en/squads/cff3d9bb/Chelsea-Stats",
-    "https://fbref.com/en/squads/47c64c55/Crystal-Palace-Stats",
-    "https://fbref.com/en/squads/d3fd31cc/Everton-Stats",
-    "https://fbref.com/en/squads/fd962109/Fulham-Stats",
-    "https://fbref.com/en/squads/822bd0ba/Liverpool-Stats",
-    "https://fbref.com/en/squads/e297cd13/Luton-Town-Stats",
-    "https://fbref.com/en/squads/b8fd03ef/Manchester-City-Stats",
-    "https://fbref.com/en/squads/19538871/Manchester-United-Stats",
-    "https://fbref.com/en/squads/b2b47a98/Newcastle-United-Stats",
-    "https://fbref.com/en/squads/e4a775cb/Nottingham-Forest-Stats",
-    "https://fbref.com/en/squads/1df6b87e/Sheffield-United-Stats",
-    "https://fbref.com/en/squads/361ca564/Tottenham-Hotspur-Stats",
-    "https://fbref.com/en/squads/7c21e445/West-Ham-United-Stats",
-    "https://fbref.com/en/squads/8cec06e1/Wolverhampton-Wanderers-Stats"
+    # "https://fbref.com/en/squads/8602292d/Aston-Villa-Stats",
+    # "https://fbref.com/en/squads/4ba7cbea/Bournemouth-Stats",
+    # "https://fbref.com/en/squads/cd051869/Brentford-Stats",
+    # "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats",
+    # "https://fbref.com/en/squads/943e8050/Burnley-Stats",
+    # "https://fbref.com/en/squads/cff3d9bb/Chelsea-Stats",
+    # "https://fbref.com/en/squads/47c64c55/Crystal-Palace-Stats",
+    # "https://fbref.com/en/squads/d3fd31cc/Everton-Stats",
+    # "https://fbref.com/en/squads/fd962109/Fulham-Stats",
+    # "https://fbref.com/en/squads/822bd0ba/Liverpool-Stats",
+    # "https://fbref.com/en/squads/e297cd13/Luton-Town-Stats",
+    # "https://fbref.com/en/squads/b8fd03ef/Manchester-City-Stats",
+    # "https://fbref.com/en/squads/19538871/Manchester-United-Stats",
+    # "https://fbref.com/en/squads/b2b47a98/Newcastle-United-Stats",
+    # "https://fbref.com/en/squads/e4a775cb/Nottingham-Forest-Stats",
+    # "https://fbref.com/en/squads/1df6b87e/Sheffield-United-Stats",
+    # "https://fbref.com/en/squads/361ca564/Tottenham-Hotspur-Stats",
+    # "https://fbref.com/en/squads/7c21e445/West-Ham-United-Stats",
+    # "https://fbref.com/en/squads/8cec06e1/Wolverhampton-Wanderers-Stats"
 ]
 
 players = {}
@@ -58,54 +58,55 @@ for url in urls:
         rows = table.find_elements(By.XPATH, './/tbody/tr')
 
         for row in rows:
-            th_element = row.find_element(By.XPATH, './/th')
-            full_player_name = th_element.text.strip()
+            if 'data-row' in row.get_attribute('outerHTML'):
+                th_element = row.find_element(By.TAG_NAME, 'th')
+                full_player_name = th_element.text.strip()
 
-            if not full_player_name or any(char.isdigit() for char in full_player_name):
-                continue
-
-            if full_player_name not in players:
-                players[full_player_name] = {'full_name': full_player_name}
-
-            player = players[full_player_name]
-
-            cells = row.find_elements(By.XPATH, './/td')
-
-            exclude_keywords = ["90", "pct", "gca", "per", "x", "sca",
-                                "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions']
-
-            for cell in cells:
-                attribute_name = cell.get_attribute("data-stat")
-                attribute_value = cell.text.strip()
-
-                # Check if the attribute should be excluded based on keywords
-                if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "":
+                if not full_player_name or any(char.isdigit() for char in full_player_name):
                     continue
 
-                # Custom processing for certain attributes (e.g., nationality, age)
-                if "nationality" in attribute_name:
-                    parts = attribute_value.split()
-                    if parts:
-                        attribute_value = parts[-1]
-                elif "age" in attribute_name:
-                    parts = attribute_value.split('-')
-                    if parts:
-                        attribute_value = parts[0]
+                if full_player_name not in players:
+                    players[full_player_name] = {'full_name': full_player_name}
 
-                try:
-                    attribute_value = float(attribute_value)
-                except ValueError:
-                    pass
+                player = players[full_player_name]
 
-                # Check if the attribute belongs to any sub-dictionary
-                for sub_dict, attributes in attribute_mapping.items():
-                    if attribute_name in attributes:
-                        player.setdefault(sub_dict, {})[
-                            attribute_name] = attribute_value
-                        break
-                else:
-                    # If not found in any sub-dictionary, add it directly to the player dictionary
-                    player[attribute_name] = attribute_value
+                cells = row.find_elements(By.XPATH, './/td')
+
+                exclude_keywords = ["90", "pct", "gca", "per", "x", "sca",
+                                    "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions']
+
+                for cell in cells:
+                    attribute_name = cell.get_attribute("data-stat")
+                    attribute_value = cell.text.strip()
+
+                    # Check if the attribute should be excluded based on keywords
+                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "":
+                        continue
+
+                    # Custom processing for certain attributes (e.g., nationality, age)
+                    if "nationality" in attribute_name:
+                        parts = attribute_value.split()
+                        if parts:
+                            attribute_value = parts[-1]
+                    elif "age" in attribute_name:
+                        parts = attribute_value.split('-')
+                        if parts:
+                            attribute_value = parts[0]
+
+                    try:
+                        attribute_value = float(attribute_value)
+                    except ValueError:
+                        pass
+
+                    # Check if the attribute belongs to any sub-dictionary
+                    for sub_dict, attributes in attribute_mapping.items():
+                        if attribute_name in attributes:
+                            player.setdefault(sub_dict, {})[
+                                attribute_name] = attribute_value
+                            break
+                    else:
+                        # If not found in any sub-dictionary, add it directly to the player dictionary
+                        player[attribute_name] = attribute_value
 
 # Close the webdriver instance
 driver.quit()
