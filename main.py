@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from unidecode import unidecode
 from data import urls, nations, positions
 import csv
 import os
@@ -16,10 +17,7 @@ for url in urls:
     title_element = driver.find_element(By.XPATH, './/h1/span')
     title = title_element.text.strip().split()
 
-    club = title[1]
-
-    if len(title) > 3:
-        club += " " + title[2]
+    club = " ".join(title[1:len(title) - 1])
 
     team_data = driver.find_elements(By.TAG_NAME, 'table')
 
@@ -35,7 +33,8 @@ for url in urls:
                     continue
 
                 if full_player_name not in players:
-                    players[full_player_name] = {'full_name': full_player_name}
+                    players[full_player_name] = {
+                        'full_name': unidecode(full_player_name)}
 
                 player = players[full_player_name]
 
@@ -58,8 +57,8 @@ for url in urls:
                     if "nationality" in attribute_name:
                         attribute_name = 'nation'
                         parts = attribute_value.split()
-                        if parts:
-                            attribute_value = nations[parts[-1]]
+                        if parts and len(parts) == 2:
+                            attribute_value = nations[parts[1]]
                     elif "age" in attribute_name:
                         parts = attribute_value.split('-')
                         if parts:
@@ -118,7 +117,7 @@ for position, players_list in players_by_position.items():
 
     csv_path = os.path.join(output_directory, 'pl_' + csv_filename)
 
-    with open(csv_path, 'w', newline='') as csvfile:
+    with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = players_list[0].keys() if players_list else []
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
