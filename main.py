@@ -10,6 +10,7 @@ driver = webdriver.Chrome()
 
 players = {}
 
+# loop through all urls one-by-one
 for url in urls:
     driver.get(url)
     driver.implicitly_wait(10)
@@ -17,34 +18,47 @@ for url in urls:
     title_element = driver.find_element(By.XPATH, './/h1/span')
     title = title_element.text.strip().split()
 
+    # get club name from the title of the page
     club = " ".join(title[1:len(title) - 1])
 
+    # get all the tables from the page and store as team data
     team_data = driver.find_elements(By.TAG_NAME, 'table')
 
+    # loop through all the tables one-by-one
     for table in team_data:
         rows = table.find_elements(By.XPATH, './/tbody/tr')
 
+        # loop through all the rows one-by-one (each row == player)
         for row in rows:
+            # verify the data in the row, and get the name of the player
             if 'data-row' in row.get_attribute('outerHTML'):
                 th_element = row.find_element(By.TAG_NAME, 'th')
                 full_player_name = th_element.text.strip()
 
+                # skip over rows if the name is not an actual player
                 if not full_player_name or any(char.isdigit() for char in full_player_name) or full_player_name in ['Player', 'Date']:
                     continue
 
+                # if the player has not been seen before, add it to the players dictionary
                 if full_player_name not in players:
                     players[full_player_name] = {
+                        # assign the player name and use unidecode to remove accents
                         'full_name': unidecode(full_player_name)}
 
+                # get the players individual player dictionary
                 player = players[full_player_name]
 
+                # add club to data set for each player
                 player['club'] = club
 
+                # get the cells/data points from the row
                 cells = row.find_elements(By.XPATH, './/td')
 
+                # exclude data points containing these titles
                 exclude_keywords = ["90", "pct", "gca", "per", "x", "sca",
                                     "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions']
 
+                # loop through all the cells/data points one-by-one
                 for cell in cells:
                     attribute_name = cell.get_attribute("data-stat")
                     attribute_value = cell.text.strip()
@@ -68,6 +82,7 @@ for url in urls:
                         if parts:
                             attribute_value = positions[parts[0]]
 
+                    # try to convert to int if possible
                     try:
                         attribute_value = int(attribute_value)
                     except ValueError:
