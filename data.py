@@ -4,11 +4,11 @@ urls = [
     # "https://fbref.com/en/squads/8602292d/Aston-Villa-Stats",
     # "https://fbref.com/en/squads/4ba7cbea/Bournemouth-Stats",
     "https://fbref.com/en/squads/cd051869/Brentford-Stats",
-    # "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats",
-    # "https://fbref.com/en/squads/943e8050/Burnley-Stats",
+    "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats",
+    "https://fbref.com/en/squads/943e8050/Burnley-Stats",
     # "https://fbref.com/en/squads/cff3d9bb/Chelsea-Stats",
     # "https://fbref.com/en/squads/47c64c55/Crystal-Palace-Stats",
-    "https://fbref.com/en/squads/d3fd31cc/Everton-Stats",
+    # "https://fbref.com/en/squads/d3fd31cc/Everton-Stats",
     # "https://fbref.com/en/squads/fd962109/Fulham-Stats",
     # "https://fbref.com/en/squads/822bd0ba/Liverpool-Stats",
     # "https://fbref.com/en/squads/e297cd13/Luton-Town-Stats",
@@ -101,3 +101,8 @@ nations = {
     'WAL': 'Wales',
     'ZIM': 'Zimbabwe'
 }
+
+# exclude data points containing these titles
+exclude_keywords = [
+    "90", "pct", "gca", "per", "x", "sca", "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions'
+]

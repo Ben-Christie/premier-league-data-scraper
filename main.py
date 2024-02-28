@@ -21,6 +21,9 @@ for url in urls:
     # get club name from the title of the page
     club = " ".join(title[1:len(title) - 1])
 
+    # holds the encountered attributes for each player at the club, so we don't duplicate data
+    seenAttributes = {}
+
     # get all the tables from the page and store as team data
     team_data = driver.find_elements(By.TAG_NAME, 'table')
 
@@ -43,13 +46,15 @@ for url in urls:
                 if full_player_name not in players:
                     players[full_player_name] = {
                         # assign the player name and use unidecode to remove accents
-                        'full_name': unidecode(full_player_name)}
+                        'full_name': unidecode(full_player_name),
+                        'club': club,
+                    }
+
+                    # create an entry for the player if it doesn't exist
+                    seenAttributes[full_player_name] = set()
 
                 # get the players individual player dictionary
                 player = players[full_player_name]
-
-                # add club to data set for each player
-                player['club'] = club
 
                 # get the cells/data points from the row
                 cells = row.find_elements(By.XPATH, './/td')
@@ -64,23 +69,28 @@ for url in urls:
                     attribute_value = cell.text.strip()
 
                     # Check if the attribute should be excluded based on keywords
-                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "":
+                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "" or attribute_name in seenAttributes[full_player_name]:
                         continue
 
+                    # Add the attribute name to seenAttributes for this player
+                    seenAttributes[full_player_name].add(attribute_name)
+
                     # Custom processing for certain attributes (e.g., nationality, age)
-                    if "nationality" in attribute_name:
+                    if 'nationality' in attribute_name:
                         attribute_name = 'nation'
                         parts = attribute_value.split()
                         if parts and len(parts) == 2:
                             attribute_value = nations[parts[1]]
-                    elif "age" in attribute_name:
+                    elif 'age' in attribute_name:
                         parts = attribute_value.split('-')
                         if parts:
                             attribute_value = parts[0]
-                    elif "position" in attribute_name:
+                    elif 'position' in attribute_name:
                         parts = attribute_value.split(',')
                         if parts:
                             attribute_value = positions[parts[0]]
+                    elif 'minutes' in attribute_name:
+                        attribute_value = attribute_value.replace(',', '')
 
                     # try to convert to int if possible
                     try:
@@ -92,8 +102,13 @@ for url in urls:
                     if attribute_name == 'games' and attribute_value < 1:
                         players.pop(full_player_name)
                         break
+                    elif attribute_name == 'games' and 'games' in player and attribute_value > player['games']:
+                        player['club'] = club
 
-                    player[attribute_name] = attribute_value
+                    if attribute_name in player:
+                        player[attribute_name] += attribute_value
+                    else:
+                        player[attribute_name] = attribute_value
 
 # Close the webdriver instance
 driver.quit()
