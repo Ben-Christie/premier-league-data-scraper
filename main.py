@@ -21,9 +21,6 @@ for url in urls:
     # get club name from the title of the page
     club = " ".join(title[1:len(title) - 1])
 
-    # holds the encountered attributes for each player at the club, so we don't duplicate data
-    seenAttributes = {}
-
     # get all the tables from the page and store as team data
     team_data = driver.find_elements(By.TAG_NAME, 'table')
 
@@ -50,9 +47,6 @@ for url in urls:
                         'club': club,
                     }
 
-                    # create an entry for the player if it doesn't exist
-                    seenAttributes[full_player_name] = set()
-
                 # get the players individual player dictionary
                 player = players[full_player_name]
 
@@ -69,11 +63,8 @@ for url in urls:
                     attribute_value = cell.text.strip()
 
                     # Check if the attribute should be excluded based on keywords
-                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "" or attribute_name in seenAttributes[full_player_name]:
+                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "":
                         continue
-
-                    # Add the attribute name to seenAttributes for this player
-                    seenAttributes[full_player_name].add(attribute_name)
 
                     # Custom processing for certain attributes (e.g., nationality, age)
                     if 'nationality' in attribute_name:
@@ -105,10 +96,7 @@ for url in urls:
                     elif attribute_name == 'games' and 'games' in player and attribute_value > player['games']:
                         player['club'] = club
 
-                    if attribute_name in player:
-                        player[attribute_name] += attribute_value
-                    else:
-                        player[attribute_name] = attribute_value
+                    player[attribute_name] = attribute_value
 
 # Close the webdriver instance
 driver.quit()
