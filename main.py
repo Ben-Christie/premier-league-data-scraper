@@ -21,11 +21,14 @@ for url in urls:
     # get club name from the title of the page
     club = " ".join(title[1:len(title) - 1])
 
+    # contains the processed attributes for each player
+    seenAttributes = {}
+
     # get all the tables from the page and store as team data
-    team_data = driver.find_elements(By.TAG_NAME, 'table')
+    tables = driver.find_elements(By.TAG_NAME, 'table')
 
     # loop through all the tables one-by-one
-    for table in team_data:
+    for table in tables:
         rows = table.find_elements(By.XPATH, './/tbody/tr')
 
         # loop through all the rows one-by-one (each row == player)
@@ -33,22 +36,26 @@ for url in urls:
             # verify the data in the row, and get the name of the player
             if 'data-row' in row.get_attribute('outerHTML'):
                 th_element = row.find_element(By.TAG_NAME, 'th')
-                full_player_name = th_element.text.strip()
+                player_name = th_element.text.strip()
 
                 # skip over rows if the name is not an actual player
-                if not full_player_name or any(char.isdigit() for char in full_player_name) or full_player_name in ['Player', 'Date']:
+                if not player_name or any(char.isdigit() for char in player_name) or player_name in ['Player', 'Date']:
                     continue
 
                 # if the player has not been seen before, add it to the players dictionary
-                if full_player_name not in players:
-                    players[full_player_name] = {
+                if player_name not in players:
+                    players[player_name] = {
                         # assign the player name and use unidecode to remove accents
-                        'full_name': unidecode(full_player_name),
+                        'full_name': unidecode(player_name),
                         'club': club,
                     }
 
+                if player_name not in seenAttributes:
+                    seenAttributes[player_name] = set()
+
                 # get the players individual player dictionary
-                player = players[full_player_name]
+                player = players[player_name]
+                player_attributes = seenAttributes[player_name]
 
                 # get the cells/data points from the row
                 cells = row.find_elements(By.XPATH, './/td')
@@ -62,8 +69,8 @@ for url in urls:
                     attribute_name = cell.get_attribute("data-stat")
                     attribute_value = cell.text.strip()
 
-                    # Check if the attribute should be excluded based on keywords
-                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "":
+                    # Check if the attribute should be excluded based on keywords or has been processed already
+                    if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "" or attribute_name in seenAttributes[player_name]:
                         continue
 
                     # Custom processing for certain attributes (e.g., nationality, age)
@@ -91,12 +98,18 @@ for url in urls:
 
                     # remove players if they haven't played a game
                     if attribute_name == 'games' and attribute_value < 1:
-                        players.pop(full_player_name)
+                        players.pop(player_name)
                         break
                     elif attribute_name == 'games' and 'games' in player and attribute_value > player['games']:
                         player['club'] = club
 
-                    player[attribute_name] = attribute_value
+                    if attribute_name in player and isinstance(attribute_value, int):
+                        player[attribute_name] += attribute_value
+                    else:
+                        player[attribute_name] = attribute_value
+
+                    seenAttributes[player_name].add(attribute_name)
+
 
 # Close the webdriver instance
 driver.quit()
