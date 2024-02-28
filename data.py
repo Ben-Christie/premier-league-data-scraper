@@ -22,6 +22,12 @@ urls = [
     "https://fbref.com/en/squads/8cec06e1/Wolverhampton-Wanderers-Stats"
 ]
 
+# exclude data points containing these titles
+exclude_keywords = [
+    "90", "pct", "gca", "per", "x", "sca",
+    "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions'
+]
+
 positions = {
     'GK': 'Goalkeeper',
     'DF': 'Defender',

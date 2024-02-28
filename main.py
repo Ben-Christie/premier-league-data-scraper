@@ -1,9 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from unidecode import unidecode
-from data import urls, nations, positions
+from data import urls, exclude_keywords
+from helper import add_player_to_dict, clean_data_points, integer_conversion
 import csv
 import os
+
 
 # Create a single webdriver instance
 driver = webdriver.Chrome()
@@ -42,13 +43,8 @@ for url in urls:
                 if not player_name or any(char.isdigit() for char in player_name) or player_name in ['Player', 'Date']:
                     continue
 
-                # if the player has not been seen before, add it to the players dictionary
-                if player_name not in players:
-                    players[player_name] = {
-                        # assign the player name and use unidecode to remove accents
-                        'full_name': unidecode(player_name),
-                        'club': club,
-                    }
+                # add new player to the list of players
+                add_player_to_dict(player_name, club, players)
 
                 if player_name not in seenAttributes:
                     seenAttributes[player_name] = set()
@@ -60,10 +56,6 @@ for url in urls:
                 # get the cells/data points from the row
                 cells = row.find_elements(By.XPATH, './/td')
 
-                # exclude data points containing these titles
-                exclude_keywords = ["90", "pct", "gca", "per", "x", "sca",
-                                    "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions']
-
                 # loop through all the cells/data points one-by-one
                 for cell in cells:
                     attribute_name = cell.get_attribute("data-stat")
@@ -73,34 +65,19 @@ for url in urls:
                     if any(keyword in attribute_name for keyword in exclude_keywords) or attribute_value == "" or attribute_name in seenAttributes[player_name]:
                         continue
 
-                    # Custom processing for certain attributes (e.g., nationality, age)
-                    if 'nationality' in attribute_name:
-                        attribute_name = 'nation'
-                        parts = attribute_value.split()
-                        if parts and len(parts) == 2:
-                            attribute_value = nations[parts[1]]
-                    elif 'age' in attribute_name:
-                        parts = attribute_value.split('-')
-                        if parts:
-                            attribute_value = parts[0]
-                    elif 'position' in attribute_name:
-                        parts = attribute_value.split(',')
-                        if parts:
-                            attribute_value = positions[parts[0]]
-                    elif 'minutes' in attribute_name:
-                        attribute_value = attribute_value.replace(',', '')
+                    # clean data points
+                    attribute_name, attribute_value = clean_data_points(
+                        attribute_name, attribute_value)
 
                     # try to convert to int if possible
-                    try:
-                        attribute_value = int(attribute_value)
-                    except ValueError:
-                        pass
+                    attribute_value = integer_conversion(attribute_value)
 
                     # remove players if they haven't played a game
                     if attribute_name == 'games' and attribute_value < 1:
                         players.pop(player_name)
                         break
-                    elif attribute_name == 'games' and 'games' in player and attribute_value > player['games']:
+
+                    if attribute_name == 'games' and 'games' in player and attribute_value > player['games']:
                         player['club'] = club
 
                     if attribute_name in player and isinstance(attribute_value, int):
