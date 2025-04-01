@@ -87,7 +87,6 @@ for url in fbref_urls:
 
                     seenAttributes[player_name].add(attribute_name)
 
-
 # Close the webdriver instance
 driver.quit()
 
