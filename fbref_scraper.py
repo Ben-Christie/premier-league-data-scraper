@@ -1,6 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from data import urls, exclude_keywords
+from data import fbref_urls, exclude_keywords
 from helper import add_player_to_dict, clean_data_points, integer_conversion
 import csv
 import os
@@ -11,8 +11,8 @@ driver = webdriver.Chrome()
 
 players = {}
 
-# loop through all urls one-by-one
-for url in urls:
+# loop through all fbref urls one-by-one
+for url in fbref_urls:
     driver.get(url)
     driver.implicitly_wait(10)
 

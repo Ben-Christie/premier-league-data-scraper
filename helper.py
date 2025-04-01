@@ -5,9 +5,24 @@ from data import nations, positions
 def add_player_to_dict(name, club, dictionary):
     # if the player has not been seen before, add it to the players dictionary
     if name not in dictionary:
+        # split name
+        surname = ''
+        forename = ''
+
+        # split on space, maximum number of splits is 1
+        names = name.split(' ', 1)
+
+        # if surname (brazilian players often go by 1 name)
+        if len(names) > 1:
+            forename = names[0]
+            surname = names[1]
+        elif len(names) == 1:
+            surname = names[0]
+
         dictionary[name] = {
             # assign the player name and use unidecode to remove accents
-            'full_name': unidecode(name),
+            'surname': unidecode(surname),
+            'forename': unidecode(forename),
             'club': club,
         }
 
