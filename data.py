@@ -4,7 +4,7 @@ fbref_urls = [
     "https://fbref.com/en/squads/8602292d/Aston-Villa-Stats",
     "https://fbref.com/en/squads/4ba7cbea/Bournemouth-Stats",
     "https://fbref.com/en/squads/cd051869/Brentford-Stats",
-    "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats"
+    "https://fbref.com/en/squads/d07537b9/Brighton-and-Hove-Albion-Stats",
     "https://fbref.com/en/squads/cff3d9bb/Chelsea-Stats",
     "https://fbref.com/en/squads/47c64c55/Crystal-Palace-Stats",
     "https://fbref.com/en/squads/d3fd31cc/Everton-Stats",
@@ -22,14 +22,37 @@ fbref_urls = [
     "https://fbref.com/en/squads/8cec06e1/Wolverhampton-Wanderers-Stats"
 ]
 
+sofifa_urls = [
+    "https://sofifa.com/team/1/arsenal/",
+    "https://sofifa.com/team/2/aston-villa/",
+    "https://sofifa.com/team/1943/afc-bournemouth/",
+    "https://sofifa.com/team/1925/brentford/",
+    "https://sofifa.com/team/1808/brighton-hove-albion/",
+    "https://sofifa.com/team/5/chelsea/",
+    "https://sofifa.com/team/1799/crystal-palace/",
+    "https://sofifa.com/team/7/everton/",
+    "https://sofifa.com/team/144/fulham-fc/",
+    "https://sofifa.com/team/94/ipswich-town/",
+    "https://sofifa.com/team/95/leicester-city/",
+    "https://sofifa.com/team/9/liverpool/",
+    "https://sofifa.com/team/10/manchester-city/",
+    "https://sofifa.com/team/11/manchester-united/",
+    "https://sofifa.com/team/13/newcastle-united/",
+    "https://sofifa.com/team/14/nottingham-forest/",
+    "https://sofifa.com/team/17/southampton/",
+    "https://sofifa.com/team/18/tottenham-hotspur/",
+    "https://sofifa.com/team/19/west-ham-united/",
+    "https://sofifa.com/team/110/wolverhampton-wanderers/"
+]
+
 
 # exclude data points containing these titles
-exclude_keywords = [
+fbref_exclude_keywords = [
     "90", "pct", "gca", "per", "x", "sca",
     "plus", "matches", "games_complete", "average_shot_distance", "goals_assists", "goals_pens", 'tackles_interceptions', 'cards_yellow_red', 'gk_games', 'gk_games_starts', 'gk_minutes', 'gk_goals_against', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_avg_distance_def_actions'
 ]
 
-positions = {
+fbref_positions = {
     'GK': 'Goalkeeper',
     'DF': 'Defender',
     'MF': 'Midfielder',
@@ -114,26 +137,3 @@ nations = {
     'ZAM': 'Zambia',
     'ZIM': 'Zimbabwe'
 }
-
-sofifa_urls = [
-    "https://sofifa.com/team/1/arsenal/",
-    "https://sofifa.com/team/2/aston-villa/",
-    "https://sofifa.com/team/1943/afc-bournemouth/",
-    "https://sofifa.com/team/1925/brentford/",
-    "https://sofifa.com/team/1808/brighton-hove-albion/",
-    "https://sofifa.com/team/5/chelsea/",
-    "https://sofifa.com/team/1799/crystal-palace/",
-    "https://sofifa.com/team/7/everton/",
-    "https://sofifa.com/team/144/fulham-fc/",
-    "https://sofifa.com/team/94/ipswich-town/",
-    "https://sofifa.com/team/95/leicester-city/",
-    "https://sofifa.com/team/9/liverpool/",
-    "https://sofifa.com/team/10/manchester-city/",
-    "https://sofifa.com/team/11/manchester-united/",
-    "https://sofifa.com/team/13/newcastle-united/",
-    "https://sofifa.com/team/14/nottingham-forest/",
-    "https://sofifa.com/team/17/southampton/",
-    "https://sofifa.com/team/18/tottenham-hotspur/",
-    "https://sofifa.com/team/19/west-ham-united/",
-    "https://sofifa.com/team/110/wolverhampton-wanderers/"
-]
