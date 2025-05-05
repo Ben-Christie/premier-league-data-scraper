@@ -19,7 +19,7 @@ def fbref(players, driver):
         # contains the processed attributes for each player
         seenAttributes = {}
 
-        # get all the tables from the page and store as team data
+        # get all the tables from the page and store as tables
         tables = driver.find_elements(By.TAG_NAME, 'table')
 
         # loop through all the tables one-by-one
@@ -38,14 +38,15 @@ def fbref(players, driver):
                         continue
 
                     # add new player to the list of players
-                    surname = add_player_to_dict(player_name, club, players)
+                    player_name = add_player_to_dict(
+                        player_name, club, players)
 
-                    if surname not in seenAttributes:
-                        seenAttributes[surname] = set()
+                    if player_name not in seenAttributes:
+                        seenAttributes[player_name] = set()
 
                     # get the players individual player dictionary
-                    player = players[surname]
-                    player_attributes = seenAttributes[surname]
+                    player = players[player_name]
+                    player_attributes = seenAttributes[player_name]
 
                     # get the cells/data points from the row
                     cells = row.find_elements(By.XPATH, './/td')
@@ -56,7 +57,7 @@ def fbref(players, driver):
                         attribute_value = cell.text.strip()
 
                         # Check if the attribute should be excluded based on keywords or has been processed already
-                        if any(keyword in attribute_name for keyword in fbref_exclude_keywords) or attribute_value == "" or attribute_name in seenAttributes[surname]:
+                        if any(keyword in attribute_name for keyword in fbref_exclude_keywords) or attribute_value == "" or attribute_name in seenAttributes[player_name]:
                             continue
 
                         # clean data points
@@ -68,7 +69,7 @@ def fbref(players, driver):
 
                         # remove players if they haven't played a game
                         if attribute_name == 'games' and attribute_value < 1:
-                            players.pop(surname)
+                            players.pop(player_name)
                             break
 
                         if attribute_name == 'games' and 'games' in player and attribute_value > player['games']:
@@ -79,4 +80,4 @@ def fbref(players, driver):
                         else:
                             player[attribute_name] = attribute_value
 
-                        seenAttributes[surname].add(attribute_name)
+                        seenAttributes[player_name].add(attribute_name)

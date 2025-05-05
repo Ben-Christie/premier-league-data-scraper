@@ -1,5 +1,6 @@
 from unidecode import unidecode
 from data import nations, fbref_positions
+from rapidfuzz import process
 import csv
 import os
 
@@ -9,8 +10,11 @@ def add_player_to_dict(name, club, dictionary):
     surname = ''
     forename = ''
 
+    # simplify name
+    name = unidecode(name)
+
     # split on space, maximum number of splits is 1
-    names = unidecode(name).split(' ', 1)
+    names = name.split(' ', 1)
 
     # if surname (brazilian players often go by 1 name)
     if len(names) > 1:
@@ -20,16 +24,16 @@ def add_player_to_dict(name, club, dictionary):
         surname = names[0]
 
     # if the player has not been seen before, add it to the players dictionary
-    if surname not in dictionary:
+    if name not in dictionary:
 
-        dictionary[surname] = {
+        dictionary[name] = {
             # assign the player name and use unidecode to remove accents
-            'surname': unidecode(surname),
-            'forename': unidecode(forename),
+            'surname': surname,
+            'forename': forename,
             'club': club
         }
 
-    return surname
+    return name
 
 
 def clean_fbref_data_points(attribute_name, attribute_value):
@@ -105,3 +109,19 @@ def csv_split(players):
 
             for player in players_list:
                 writer.writerow(player)
+
+
+def fuzzy_match_players(search_term, players):
+    # list of keys (names) in the main players dict
+    player_names = list(players.keys())
+
+    # fuzzy match search term with keys (names)
+    best_match = process.extractOne(
+        search_term, player_names, score_cutoff=70)
+
+    # if we find something
+    if best_match:
+        matched_name, score, index = best_match
+        return matched_name
+    else:
+        return "no match"
