@@ -108,7 +108,8 @@ def csv_split(players):
             writer.writeheader()
 
             for player in players_list:
-                writer.writerow(player)
+                if player.get('overall') and player.get('potential'):
+                    writer.writerow(player)
 
 
 def fuzzy_match_players(search_term, players):
